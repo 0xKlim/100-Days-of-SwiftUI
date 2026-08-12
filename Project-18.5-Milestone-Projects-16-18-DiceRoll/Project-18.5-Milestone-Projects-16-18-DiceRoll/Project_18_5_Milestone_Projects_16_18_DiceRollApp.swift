@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct Project_18_5_Milestone_Projects_16_18_DiceRollApp: App {
@@ -13,5 +14,6 @@ struct Project_18_5_Milestone_Projects_16_18_DiceRollApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: Player.self)
     }
 }
