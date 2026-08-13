@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PlayersQueueView: View {
     let players: [Player]
-    let currentPlayer: Int
+    let activePlayerID: UUID?
     
     @State private var position = ScrollPosition()
     
@@ -20,10 +20,9 @@ struct PlayersQueueView: View {
                 
                 ForEach(players) { player in
                     VStack {
-                        Image(systemName: "star")
                         Text(player.name)
+                            .font(.title2)
                     }
-                    .tag(player.id)
                     .padding()
                     .containerRelativeFrame(.horizontal) { size, _ in
                         size * 0.5
@@ -32,11 +31,12 @@ struct PlayersQueueView: View {
                     .opacity(isPlayerActive(player) ? 1 : 0.3)
                     .clipShape(.capsule)
                     .scaleEffect(isPlayerActive(player) ? 1 : 0.7)
-                    .animation(.default, value: currentPlayer)
+                    .animation(.default, value: activePlayerID)
                     .visualEffect { content, proxy in
                         content
                             .rotation3DEffect(.degrees((-proxy.frame(in: .global).midX + proxy.size.width) / 10), axis: (x: 0, y: 1, z: 0))
                     }
+                    .tag(player.id)
                 }
                 
                 ClearSpacesView()
@@ -46,22 +46,24 @@ struct PlayersQueueView: View {
         .scrollPosition($position, anchor: .center)
         .scrollDisabled(true)
         .scrollClipDisabled()
-        .onChange(of: currentPlayer) {
+        .onChange(of: activePlayerID) {
             updateCurrentPlayer()
         }
     }
     
     func updateCurrentPlayer() {
+        guard let activePlayerID else { return }
+        
         withAnimation(.bouncy) {
-            position.scrollTo(id: players[currentPlayer].id)
+            position.scrollTo(id: activePlayerID)
         }
     }
     
     func isPlayerActive(_ player: Player) -> Bool {
-        player.id == players[currentPlayer].id
+        player.id == activePlayerID
     }
 }
 
 #Preview {
-    PlayersQueueView(players: [Player](), currentPlayer: 0)
+    PlayersQueueView(players: [Player](), activePlayerID: UUID())
 }

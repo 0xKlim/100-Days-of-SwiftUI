@@ -14,13 +14,7 @@ class Player: Identifiable {
     var name: String 
     var rolls: [Roll]
     
-    init(name: String) {
-        self.id = UUID()
-        self.name = name
-        self.rolls = [Roll]()
-    }
-    
-    init(name: String, rolls: [Roll]) {
+    init(name: String, rolls: [Roll] = []) {
         self.id = UUID()
         self.name = name
         self.rolls = rolls

@@ -8,27 +8,20 @@
 import SwiftUI
 
 struct RolledDiceView: View {
+    @AppStorage(AppStorageKeys.numberOfDice) var numberOfDice = 2
+    
     let rolledDice: [Int]
     
-    var rows: Int {
-        var rows = rolledDice.count / 4
-        if rolledDice.count % 4 > 0 {
-            rows += 1
-        }
-        return rows
+    var columns: Array<GridItem> {
+        Array(repeating: GridItem(.flexible(minimum: 50, maximum: 80)), count: min(numberOfDice, 5))
     }
     
     var body: some View {
-        ForEach(0..<rows, id: \.self) { row in
-            HStack {
-                ForEach(row * 4 ..<  min(rolledDice.count,((row + 1) * 4)), id: \.self) { dice in
-                    DiceView(value: rolledDice[dice], color: .black)
-                        .font(.title)
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .containerRelativeFrame(.horizontal) { lenght, _ in
-                            lenght * 0.22
-                        }
-                }
+        LazyVGrid(columns: columns) {
+            ForEach(rolledDice.indices, id: \.self) { index in
+                DiceView(value: rolledDice[index], color: .black)
+                    .font(.title2)
+                    .aspectRatio(1.0, contentMode: .fit)
             }
         }
     }

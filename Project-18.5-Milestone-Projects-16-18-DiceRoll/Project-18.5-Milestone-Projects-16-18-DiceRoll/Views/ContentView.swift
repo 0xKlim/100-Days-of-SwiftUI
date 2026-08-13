@@ -9,6 +9,9 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
+    @Query(sort: \Player.name) var players: [Player]
+    @Environment(\.modelContext) var modelContext
+    
     var body: some View {
         TabView {
             Tab {
@@ -36,6 +39,12 @@ struct ContentView: View {
                 }
             } label: {
                 Label("Settings", systemImage: "gearshape.2")
+            }
+        }
+        .onAppear {
+            if players.isEmpty {
+                modelContext.insert(Player.defaultPlayer(number: 0))
+                modelContext.insert(Player.defaultPlayer(number: 1))
             }
         }
     }

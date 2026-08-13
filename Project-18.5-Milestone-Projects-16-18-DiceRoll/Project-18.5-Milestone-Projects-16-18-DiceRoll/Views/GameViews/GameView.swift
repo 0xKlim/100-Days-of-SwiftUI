@@ -17,7 +17,7 @@ struct GameView: View {
     @Query(sort: \Player.name) var players: [Player]
     @Environment(\.modelContext) var modelContext
     
-    @State private var currentPlayer = 0
+    @State private var activePlayerID: UUID?
     @State private var rolledDice = [Int]()
     @State private var areRolled = false
     
@@ -28,23 +28,17 @@ struct GameView: View {
         rolledDice.reduce(0, +)
     }
     
-    private var safeCurrentPlayer: Int {
-        min(currentPlayer, players.count - 1)
-        
-    }
-    
     var body: some View {
         VStack {
             if !players.isEmpty {
-                PlayersQueueView(players: players, currentPlayer: safeCurrentPlayer)
+                PlayersQueueView(players: players, activePlayerID: activePlayerID)
                     .padding(.bottom)
-                    .onChange(of: players, checkPlayers)
                 
-                DiceView(value: rolledSum, color: .black)
+                DiceView(value: rolledSum, color: .green)
                     .font(.largeTitle)
-                    .aspectRatio(1.5, contentMode: .fit)
+                    .aspectRatio(1.0, contentMode: .fit)
                     .containerRelativeFrame(.horizontal) { length, _ in
-                        length * 0.33
+                        length * 0.25
                     }
                     .padding(.vertical)
                 
@@ -58,67 +52,37 @@ struct GameView: View {
                 
                 Spacer()
                
-                HStack(spacing: 0) {
-                    Button("Skip",action: changePlayer)
-                        .padding()
-                        .background(.ultraThinMaterial)
-                        .clipShape(.circle)
-                        .containerRelativeFrame(.horizontal) { length, _ in
-                            length * 0.3
-                        }
-                        .disabled(areRolled)
-                    
-                    
-                    Button(areRolled ? "Next" : "Roll",systemImage: areRolled ? "arrow.right" : "", action:  areRolled ? changePlayer : roll)
-                        .foregroundStyle(.white)
-                        .padding()
-                        .containerRelativeFrame(.horizontal) { length, _ in
-                            length * 0.4
-                        }
-                        .background(areRolled ? .green : .blue)
-                        .clipShape(.buttonBorder)
-                        .sensoryFeedback(.start, trigger: areRolled)
-                    
-                    Color.clear
-                        .frame(height: 0)
-                        .containerRelativeFrame(.horizontal) { length, _ in
-                            length * 0.3
-                        }
-                    
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 24)
+                GameBarView(areRolled: areRolled, onSkip: changePlayer, onNext: nextMove, onRoll: roll)
+                    .padding(.vertical, 24)
                 
             } else {
-                Text("Plaease add player in settings first")
-                    .foregroundStyle(.secondary)
+                NoPlayersView {
+                    modelContext.insert(Player.defaultPlayer(number: 0))
+                    modelContext.insert(Player.defaultPlayer(number: 1))
+                }
             }
         }
         .onAppear(perform: checkPlayers)
-
+        .onChange(of: players, checkPlayers)
     }
     
     func checkPlayers() {
-        if currentPlayer >= players.count {
-            currentPlayer = 0
+        if activePlayerID == nil {
+            activePlayerID = players.first?.id
         }
         
-        if players.isEmpty {
-            modelContext.insert(Player.defaultPlayer(number: players.count))
-            modelContext.insert(Player.defaultPlayer(number: players.count + 1))
-            modelContext.insert(Player.defaultPlayer(number: players.count + 2))
+        if !players.contains(where: {$0.id == activePlayerID}) {
+            changePlayer()
         }
     }
     
     func changePlayer() {
+        activePlayerID = players.nextPlayer(after: activePlayerID)?.id
+    }
+    
+    func nextMove() {
         saveRolledResult()
-        
-        if currentPlayer >= players.count - 1 {
-            currentPlayer = 0
-        } else {
-            currentPlayer += 1
-        }
-        
+        changePlayer()
         rolledDice.removeAll()
         areRolled = false
     }
@@ -130,7 +94,6 @@ struct GameView: View {
                 rolledDice.append(value)
             }
         }
-        
         
         timeCounter = 10
     }
@@ -149,7 +112,7 @@ struct GameView: View {
     }
     
     func saveRolledResult() {
-        players[safeCurrentPlayer].rolls.append(Roll(diceResults: rolledDice))
+        players.first(where: {$0.id == activePlayerID})?.rolls.append(Roll(diceResults: rolledDice))
     }
 }
 
