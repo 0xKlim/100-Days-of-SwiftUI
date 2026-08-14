@@ -19,7 +19,7 @@ struct GameView: View {
     
     @State private var activePlayerID: UUID?
     @State private var rolledDice = [Int]()
-    @State private var areRolled = false
+    @State private var isRolled = false
     
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     @State private var timeCounter = 10
@@ -43,6 +43,7 @@ struct GameView: View {
                     .padding(.vertical)
                 
                 RolledDiceView(rolledDice: rolledDice)
+                    .padding(.horizontal)
                     .onReceive(timer) { time in
                         if timeCounter > 0 {
                             timeCounter -= 1
@@ -52,7 +53,7 @@ struct GameView: View {
                 
                 Spacer()
                
-                GameBarView(areRolled: areRolled, onSkip: changePlayer, onNext: nextMove, onRoll: roll)
+                GameBarView(isRolled: isRolled, onSkip: changePlayer, onNext: nextMove, onRoll: roll)
                     .padding(.vertical, 24)
                 
             } else {
@@ -84,7 +85,7 @@ struct GameView: View {
         saveRolledResult()
         changePlayer()
         rolledDice.removeAll()
-        areRolled = false
+        isRolled = false
     }
     
     func roll() {
@@ -108,7 +109,7 @@ struct GameView: View {
             }
         }
         
-        areRolled = true
+        isRolled = true
     }
     
     func saveRolledResult() {

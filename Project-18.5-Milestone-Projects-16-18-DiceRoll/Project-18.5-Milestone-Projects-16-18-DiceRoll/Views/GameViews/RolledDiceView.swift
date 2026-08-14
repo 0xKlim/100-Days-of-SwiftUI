@@ -12,14 +12,16 @@ struct RolledDiceView: View {
     
     let rolledDice: [Int]
     
+    let spacing: CGFloat = 12
+    
     var columns: Array<GridItem> {
-        Array(repeating: GridItem(.flexible(minimum: 50, maximum: 80)), count: min(numberOfDice, 5))
+        Array(repeating: GridItem(.flexible(minimum: 50, maximum: 80), spacing: spacing), count: min(numberOfDice, 5))
     }
     
     var body: some View {
-        LazyVGrid(columns: columns) {
+        LazyVGrid(columns: columns, spacing: spacing) {
             ForEach(rolledDice.indices, id: \.self) { index in
-                DiceView(value: rolledDice[index], color: .black)
+                DiceView(value: rolledDice[index], color: .blue)
                     .font(.title2)
                     .aspectRatio(1.0, contentMode: .fit)
             }

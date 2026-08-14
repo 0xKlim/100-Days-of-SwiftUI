@@ -42,6 +42,7 @@ struct SettingsView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
         .navigationDestination(for: Player.self, destination: { player in
             EditPlayerView(player: player, onSave: savePlayer, onDelete: deletePlayer)
         })

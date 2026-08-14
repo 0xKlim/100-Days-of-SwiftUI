@@ -13,20 +13,23 @@ struct DiceView: View {
     
     var body: some View {
         VStack {
-            Text(value.formatted())
-                .foregroundStyle(.white)
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(color)
-                .overlay {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(colors: [color.opacity(0.3), color.opacity(0.9)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
+                .overlay{
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.white.opacity(0.8), lineWidth: 8)
-                        .blur(radius: 4)
-                        
+                    .stroke(
+                        LinearGradient(colors: [Color.white.opacity(0.2), Color.white.opacity(0.9)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        lineWidth: 2
+                    )
+                    .blur(radius: 2)
+                    .shadow(color: color.opacity(0.9), radius: 4, x: 0, y: 2)
+                    
+                    Text(value.formatted())
+                        .foregroundStyle(.white)
                 }
-                .clipShape(.rect(cornerRadius: 16))
         }
-//        .shadow(color: .black, radius: 10)
     }
     
     

@@ -30,6 +30,7 @@ struct HistoryView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
         .toolbar {
             ToolbarItem(placement: .destructiveAction) {
                 Button("Remove all", role: .destructive) {

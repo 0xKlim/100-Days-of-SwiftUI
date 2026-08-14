@@ -18,6 +18,7 @@ struct ContentView: View {
                 NavigationStack {
                     GameView()
                     .navigationTitle("Dice Roll")
+                    .appBackground()
                 }
             } label: {
                 Label("Game", systemImage: "play")
@@ -27,6 +28,7 @@ struct ContentView: View {
                 NavigationStack {
                     HistoryView()
                     .navigationTitle("History")
+                    .appBackground()
                 }
             } label: {
                 Label("History", systemImage: "clock.arrow.circlepath")
@@ -36,11 +38,13 @@ struct ContentView: View {
                 NavigationStack {
                     SettingsView()
                     .navigationTitle("Settings")
+                    .appBackground()
                 }
             } label: {
                 Label("Settings", systemImage: "gearshape.2")
             }
         }
+        .colorScheme(.dark)
         .onAppear {
             if players.isEmpty {
                 modelContext.insert(Player.defaultPlayer(number: 0))

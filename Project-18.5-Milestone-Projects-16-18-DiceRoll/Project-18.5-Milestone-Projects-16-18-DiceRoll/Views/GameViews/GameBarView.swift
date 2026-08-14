@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GameBarView: View {
-    let areRolled: Bool
+    let isRolled: Bool
     let onSkip: () -> Void
     let onNext: () -> Void
     let onRoll: () -> Void
@@ -22,18 +22,20 @@ struct GameBarView: View {
                 .containerRelativeFrame(.horizontal) { length, _ in
                     length * 0.3
                 }
-                .disabled(areRolled)
+                .shadow(radius: 10)
+                .disabled(isRolled)
             
             
-            Button(areRolled ? "Next" : "Roll",systemImage: areRolled ? "arrow.right" : "", action:  areRolled ? onNext : onRoll)
+            Button(isRolled ? "Next" : "Roll",systemImage: isRolled ? "arrow.right" : "", action:  isRolled ? onNext : onRoll)
                 .foregroundStyle(.white)
                 .padding()
                 .containerRelativeFrame(.horizontal) { length, _ in
                     length * 0.4
                 }
-                .background(areRolled ? .green : .blue)
+                .background(isRolled ? .green : .blue)
                 .clipShape(.buttonBorder)
-                .sensoryFeedback(.start, trigger: areRolled)
+                .shadow(color: isRolled ? .green.opacity(0.5) : .blue.opacity(0.5), radius: 10)
+                .sensoryFeedback(.start, trigger: isRolled)
             
             Color.clear
                 .frame(height: 0)
@@ -46,7 +48,7 @@ struct GameBarView: View {
 }
 
 #Preview {
-    GameBarView(areRolled: false) {
+    GameBarView(isRolled: false) {
         
     } onNext: {
         
