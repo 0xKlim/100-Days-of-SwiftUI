@@ -12,6 +12,7 @@ struct ContentView: View {
     
     @State private var searchText = ""
     @State private var favorites = Favorites()
+    @State private var sortCriteria: SortCriteria = .none
     
     var filteredResorts: [Resort] {
         if searchText.isEmpty {
@@ -21,9 +22,24 @@ struct ContentView: View {
         }
     }
     
+    var sortedResorts: [Resort] {
+        switch sortCriteria {
+        case .none:
+            filteredResorts
+        case .alphabetic:
+            filteredResorts.sorted(by: {$0.name.localizedStandardCompare($1.name) == .orderedAscending})
+        case .alphabeticInversed:
+            filteredResorts.sorted(by: {$0.name.localizedStandardCompare($1.name) == .orderedDescending})
+        case .country:
+            filteredResorts.sorted(by: {$0.country.localizedStandardCompare($1.country) == .orderedAscending})
+        case .countryInversed:
+            filteredResorts.sorted(by: {$0.country.localizedStandardCompare($1.country) == .orderedDescending})
+        }
+    }
+    
     var body: some View {
         NavigationSplitView {
-            List(filteredResorts) { resort in
+            List(sortedResorts) { resort in
                 NavigationLink(value: resort) {
                     HStack {
                         Image(resort.country)
@@ -58,11 +74,31 @@ struct ContentView: View {
             .navigationDestination(for: Resort.self) { resort in
                 ResortView(resort: resort)
             }
+            .toolbar {
+                Menu("Sort", systemImage: "arrow.up.arrow.down"){
+                    Picker("Sort", selection: $sortCriteria) {
+                        ForEach(SortCriteria.allCases) { criteria in
+                            Text(criteria.rawValue)
+                            
+                        }
+                    }
+                }
+            }
         } detail: {
             WelcomeView()
         }
         .preferredColorScheme(.dark)
         .environment(favorites)
+    }
+    
+    enum SortCriteria: String, CaseIterable, Identifiable {
+        case none = "Default"
+        case alphabetic = "Alphabetic A-Z"
+        case alphabeticInversed = "Alphabetic Z-A"
+        case country = "Country A-Z"
+        case countryInversed = "Country Z-A"
+        
+        var id: Self { self }
     }
 }
 
