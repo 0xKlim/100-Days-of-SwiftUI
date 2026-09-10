@@ -5,7 +5,7 @@
 //  Created by Vladislav on 10.09.2026.
 //
 
-import SwiftUI
+import Foundation
 
 struct Facility: Identifiable {
     let id = UUID()
@@ -28,20 +28,22 @@ struct Facility: Identifiable {
     ]
     
     var description: String {
-        if let message = descriptions[name] {
-            message
+        descriptions[name] ?? "Information about this facility is currently unavailable."
+    }
+    
+    var iconName: String {
+        if let iconName = icons[name] {
+            iconName
         } else {
-            fatalError("Unknown facility type: \(name)")
+            "questionmark.square.dashed"
         }
     }
     
-    var icon: some View {
+    var iconAccessibilityLabel: String {
         if let iconName = icons[name] {
-            Image(systemName: iconName)
-                .accessibilityLabel(name)
-                .foregroundStyle(.secondary)
+            iconName
         } else {
-            fatalError("Unknown facility type: \(name)")
+            "Information about this facility is currently unavailable."
         }
     }
 }

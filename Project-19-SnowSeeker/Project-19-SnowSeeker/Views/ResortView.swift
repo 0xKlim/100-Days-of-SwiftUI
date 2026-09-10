@@ -61,7 +61,7 @@ struct ResortView: View {
                                 selectedFacility = facility
                                 showingFacility = true
                             } label: {
-                                facility.icon
+                                FacilityIconView(name: facility.iconName, iconAccessibilityLabel: facility.iconAccessibilityLabel)
                                     .font(.title)
                             }
                         }

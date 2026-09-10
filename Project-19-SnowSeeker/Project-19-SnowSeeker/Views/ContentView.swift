@@ -51,7 +51,7 @@ struct ContentView: View {
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 5)
-                                    .stroke(.black, lineWidth: 1)
+                                    .stroke(.primary, lineWidth: 1)
                             )
                         VStack(alignment: .leading) {
                             Text(resort.name)
