@@ -11,7 +11,10 @@ struct ContentView: View {
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Spain", "UK", "Ukraine", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
     @State private var showingScore = false
+    @State private var showingFinal = false
     @State private var scoreTitle = ""
+    @State private var score = 0
+    @State private var gamesCounter = 0
     
     var body: some View {
         ZStack {
@@ -55,34 +58,58 @@ struct ContentView: View {
                 Spacer()
                 Spacer()
                 
-                Text("Score: ???")
+                Text("Score: \(score)")
                     .foregroundStyle(.white)
                     .font(.title.bold())
+                
+                Text("Played games: \(gamesCounter)/8")
+                    .font(.subheadline.weight(.heavy))
+                    .foregroundStyle(.secondary)
                 
                 Spacer()
             }
             .padding()
         }
         .alert(scoreTitle, isPresented: $showingScore) {
-            Button("Continue", action: askQuestion)
+            Button("Continue", action: countGame)
         } message: {
-            Text("Your score is ???")
+            Text("Your score is \(score)")
+        }
+        .alert("Finish! Your score is \(score)", isPresented: $showingFinal) {
+            Button("Start new game", action: startNewGame)
         }
     }
     
     func flagTapped(_ number: Int) {
         if number == correctAnswer {
             scoreTitle = "Correct"
+            score += 1
         } else {
-            scoreTitle = "Wrong"
+            scoreTitle = "Wrong! That's the flag of \(countries[number])"
+            score -= 1
         }
         
         showingScore = true
+        gamesCounter += 1
     }
     
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+    }
+    
+    func countGame() {
+        if gamesCounter > 7 {
+            showingFinal = true
+        } else {
+            askQuestion()
+        }
+    }
+    
+    func startNewGame() {
+        score = 0
+        gamesCounter = 0
+        askQuestion()
     }
 }
 
