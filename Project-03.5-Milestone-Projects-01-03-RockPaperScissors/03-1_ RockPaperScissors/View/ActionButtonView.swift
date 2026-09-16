@@ -9,16 +9,16 @@ import SwiftUI
 
 struct ActionButtonView: View {
     let name: String
-    let onTapped: (String) -> Void
+    let onTapped: () -> Void
     
-    init(_ name: String, onTapped: @escaping (String) -> Void) {
+    init(_ name: String, onTapped: @escaping () -> Void) {
         self.name = name
         self.onTapped = onTapped
     }
     
     var body: some View {
         Button {
-            onTapped(name)
+            onTapped()
         } label: {
             Text(name)
                 .font(.headline)
@@ -32,7 +32,7 @@ struct ActionButtonView: View {
 }
 
 #Preview {
-    ActionButtonView("Rock") { _ in
+    ActionButtonView("Rock") {
         
     }
 }

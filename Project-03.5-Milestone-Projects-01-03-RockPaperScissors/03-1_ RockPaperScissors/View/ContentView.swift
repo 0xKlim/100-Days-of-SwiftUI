@@ -9,30 +9,10 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var shouldWin = Bool.random()
-    @State private var appChoose = Int.random(in: 0...2)
+    @State private var appChoice: Move = .allCases.randomElement() ?? .rock
     @State private var score = 0
-    @State private var playedGamesCounter = 0
+    @State private var roundsCounter = 0
     @State private var showingFinishGameAlert = false
-    
-    let moves = ["Rock", "Paper", "Scissors"]
-    
-    var correctAnswer: String {
-        var answer = appChoose
-        
-        if shouldWin {
-            answer += 1
-        } else {
-            answer -= 1
-        }
-        
-        if answer > 2 {
-            answer = 0
-        } else if answer < 0 {
-            answer = 2
-        }
-        
-        return moves[answer]
-    }
     
     var body: some View {
         ZStack {
@@ -47,11 +27,13 @@ struct ContentView: View {
                     .font(.largeTitle.bold())
                 
                 VStack {
-                    GameTaskView(move: moves[appChoose], shouldWin: shouldWin)
+                    GameTaskView(move: appChoice.rawValue, shouldWin: shouldWin)
                     
                     HStack {
-                        ForEach(moves, id: \.self) { move in
-                            ActionButtonView(move, onTapped: moveTapped)
+                        ForEach(Move.allCases) { move in
+                            ActionButtonView(move.rawValue) {
+                                moveTapped(move)
+                            }
                         }
                     }
                     .padding(.vertical, 5)
@@ -63,7 +45,7 @@ struct ContentView: View {
                 
                 Spacer()
                 
-                GameStateInformationView(primaryText: "Score: \(score)", secondaryText: "Played games: \(playedGamesCounter)/10")
+                GameStateInformationView(primaryText: "Score: \(score)", secondaryText: "Played games: \(roundsCounter)/10")
                 
                 Spacer()
             }
@@ -71,39 +53,67 @@ struct ContentView: View {
         .alert("Finish!", isPresented: $showingFinishGameAlert) {
             Button("New Game", action: resetGame)
         } message: {
-            Text("Your score is \(score) out of \(playedGamesCounter) points!")
+            Text("Your score is \(score) out of \(roundsCounter) points!")
         }
     }
     
-    func moveTapped(_ move: String) {
+    func moveTapped(_ move: Move) {
         checkMoveCorrectness(move)
         
-        playedGamesCounter += 1
+        roundsCounter += 1
         
-        if playedGamesCounter >= 10 {
+        if roundsCounter >= 10 {
             showingFinishGameAlert = true
         }
         
-        askNewQuestion()
+        startNewRound()
     }
     
-    func checkMoveCorrectness(_ move: String) {
-        if correctAnswer == move {
+    func checkMoveCorrectness(_ move: Move) {
+        if move == appChoice.requiredMove(toWin: shouldWin) {
             score += 1
         } else {
             score -= 1
         }
     }
     
-    func askNewQuestion() {
+    func startNewRound() {
         shouldWin = Bool.random()
-        appChoose = Int.random(in: 0...2)
+        appChoice = .allCases.randomElement() ?? .rock
     }
     
     func resetGame() {
         score = 0
-        playedGamesCounter = 0
-        askNewQuestion()
+        roundsCounter = 0
+        startNewRound()
+    }
+    
+    enum Move: String, CaseIterable, Identifiable {
+        case rock = "Rock"
+        case paper = "Paper"
+        case scissors = "Scissors"
+        
+        var id: Self { self }
+        
+        var winningMove: Self {
+            switch self {
+            case .rock: return .paper
+            case .paper: return .scissors
+            case .scissors: return .rock
+            }
+        }
+        
+        var losingMove: Self {
+            switch self {
+            case .rock: return .scissors
+            case .paper: return .rock
+            case .scissors: return .paper
+            }
+        }
+        
+        func requiredMove(toWin: Bool) -> Move {
+            toWin ? winningMove : losingMove
+        }
     }
 }
 
