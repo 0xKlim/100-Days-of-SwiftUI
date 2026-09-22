@@ -16,6 +16,11 @@ struct ContentView: View {
     @State private var errorMessage = ""
     @State private var showingError = false
     
+    @State private var allWords = [String]()
+    
+    @State private var score = 0
+    @AppStorage("BestScore") var bestScore = 0
+    
     var body: some View {
         NavigationStack {
             List {
@@ -24,7 +29,7 @@ struct ContentView: View {
                         .textInputAutocapitalization(.never)
                 }
                 
-                Section {
+                Section("Score: \(score)") {
                     ForEach(usedWords, id: \.self) { word in
                         HStack {
                             Image(systemName: "\(word.count).circle")
@@ -33,6 +38,7 @@ struct ContentView: View {
                     }
                 }
             }
+            
             .navigationTitle(rootWord)
             .onSubmit(addNewWord)
             .onAppear(perform: startGame)
@@ -41,6 +47,14 @@ struct ContentView: View {
             } message: {
                 Text(errorMessage)
             }
+            .toolbar {
+                ToolbarItem {
+                    Button("New Word", action: startNewGame)
+                }
+                ToolbarItem(placement: .title) {
+                    Text("Best: \(bestScore)")
+                }
+            }
         }
     }
     
@@ -48,6 +62,16 @@ struct ContentView: View {
         let answer = newWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard answer.count > 0 else { return }
+        
+        guard isNotShort(word: answer) else {
+            wordError(title: "Word too short", message: "Please use at least 3-letter words")
+            return
+        }
+        
+        guard isNotRootWord(word: answer) else {
+            wordError(title: "Not new word", message: "You can't just use source word")
+            return
+        }
         
         guard isOriginal(word: answer) else {
             wordError(title: "Word used already", message: "Be more original")
@@ -67,18 +91,42 @@ struct ContentView: View {
         withAnimation {
             usedWords.insert(answer, at: 0)
         }
+        calculateScore(word: answer)
         newWord = ""
     }
     
     func startGame() {
+        loadWords()
+        pickUpRandomWord()
+    }
+    
+    func startNewGame() {
+        usedWords.removeAll()
+        pickUpRandomWord()
+        newWord = ""
+        score = 0
+    }
+    
+    func loadWords() {
         if let startWordsURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
             if let startWords = try? String(contentsOf: startWordsURL, encoding: .utf8) {
-                let allWords = startWords.components(separatedBy: "\n")
-                rootWord = allWords.randomElement() ?? "silkworm"
+                allWords = startWords.components(separatedBy: "\n")
                 return
             }
         }
         fatalError("Could not load start.txt from bundle.")
+    }
+    
+    func pickUpRandomWord() {
+        rootWord = allWords.randomElement() ?? "silkworm"
+    }
+    
+    func isNotShort(word: String) -> Bool {
+        word.count > 2
+    }
+    
+    func isNotRootWord(word: String) -> Bool {
+        word != rootWord
     }
     
     func isOriginal(word: String) -> Bool {
@@ -111,6 +159,19 @@ struct ContentView: View {
         errorTitle = title
         errorMessage = message
         showingError = true
+    }
+    
+    func calculateScore(word: String) {
+        let totalLetters = usedWords.reduce(0) { $0 + $1.count }
+        score = totalLetters * usedWords.count
+        
+        updateBestScore()
+    }
+    
+    func updateBestScore() {
+        if score > bestScore {
+            bestScore = score
+        }
     }
 }
 
