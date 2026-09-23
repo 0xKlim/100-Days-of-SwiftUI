@@ -15,6 +15,12 @@ struct ContentView: View {
     @State private var scoreTitle = ""
     @State private var score = 0
     @State private var gamesCounter = 0
+    @State private var turnAmount = 0.0
+    @State private var chosenFlag = -1
+    
+    private var areAnyFlagChosen: Bool {
+        chosenFlag != -1
+    }
     
     var body: some View {
         ZStack {
@@ -46,6 +52,10 @@ struct ContentView: View {
                         } label: {
                             FlagImageView(name: countries[number])
                         }
+                        .opacity(!areAnyFlagChosen || isFlagChosen(number) ? 1 : 0.25)
+                        .scaleEffect(!areAnyFlagChosen ? 1 : isFlagChosen(number) ? 1.1 : 0.8)
+                        .rotation3DEffect(isFlagChosen(number) ? .degrees(turnAmount) : .degrees(0), axis: (x: 0, y: 1, z: 0))
+                        .animation(.default, value: turnAmount)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -78,7 +88,15 @@ struct ContentView: View {
         }
     }
     
+    func isFlagChosen(_ flag: Int) -> Bool{
+       flag == chosenFlag
+    }
+    
     func flagTapped(_ number: Int) {
+//
+            chosenFlag = number
+            turnAmount = 360
+//
         if number == correctAnswer {
             scoreTitle = "Correct"
             score += 1
@@ -87,13 +105,20 @@ struct ContentView: View {
             score -= 1
         }
         
-        showingScore = true
+        Task {
+            try? await Task.sleep(for: .seconds(0.5))
+            showingScore = true
+        }
         gamesCounter += 1
     }
     
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+//
+            chosenFlag = -1
+            turnAmount = 0
+//
     }
     
     func countGame() {
