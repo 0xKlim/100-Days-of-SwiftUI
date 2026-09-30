@@ -13,10 +13,12 @@ struct AddView: View {
     var expenses: Expenses
     
     @State private var name = ""
-    @State private var type = "Personal"
+    @State private var type: ExpenseType = .personal
     @State private var amount = 0.0
     
-    let types = ["Business", "Personal"]
+    var nameFormatted: String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     
     var body: some View {
         NavigationStack {
@@ -24,22 +26,23 @@ struct AddView: View {
                 TextField("Name", text: $name)
                 
                 Picker("Type", selection: $type) {
-                    ForEach(types, id: \.self) {
-                        Text($0)
+                    ForEach(ExpenseType.allCases) {
+                        Text($0.rawValue)
                     }
                 }
                 
-                TextField("Amount", value: $amount, format: .currency(code: "USD"))
+                TextField("Amount", value: $amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
                     .keyboardType(.decimalPad)
             }
             .navigationTitle("Add new expense")
             .toolbar {
                 Button("Save") {
-                    let item = ExpenseItem(name: name, type: type, amount: amount)
+                    let item = ExpenseItem(name: nameFormatted, type: type, amount: amount)
                     expenses.items.append(item)
                     
                     dismiss()
                 }
+                .disabled(nameFormatted.isEmpty)
             }
         }
     }
@@ -48,3 +51,4 @@ struct AddView: View {
 #Preview {
     AddView(expenses: Expenses())
 }
+

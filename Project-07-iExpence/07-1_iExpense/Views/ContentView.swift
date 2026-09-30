@@ -14,19 +14,19 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             List {
-                ForEach(expenses.items) { item in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(item.name)
-                                .font(.headline)
-                            Text(item.type)
-                        }
-
-                        Spacer()
-                        Text(item.amount, format: .currency(code: "USD"))
+                ForEach(ExpenseType.allCases) { type in
+                    let filteredItems = expenses.items.filter { $0.type == type }
+                    if !filteredItems.isEmpty {
+                        ExpenseSectionView(items: filteredItems, name: type.rawValue, onDelete: removeItem(id:))
                     }
                 }
-                .onDelete(perform: removeItems(at:))
+            }
+            .overlay {
+                if expenses.items.isEmpty {
+                    UnavailableView {
+                        showingAddExpense = true
+                    }
+                }
             }
             .navigationTitle("iExpense")
             .toolbar {
@@ -40,8 +40,8 @@ struct ContentView: View {
         }
     }
     
-    func removeItems(at offsets: IndexSet) {
-        expenses.items.remove(atOffsets: offsets)
+    func removeItem(id: UUID) {
+        expenses.items.removeAll(where: {$0.id == id})
     }
 }
 
