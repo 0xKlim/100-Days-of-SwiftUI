@@ -15,7 +15,9 @@ struct ExpenseSectionView: View {
     var body: some View {
         Section(name) {
             ForEach(items) { item in
-                ItemRowView(item: item)
+                NavigationLink(value: Route.edit(item)) { 
+                    ItemRowView(item: item)
+                }
             }
             .onDelete(perform: removeItems(at:))
         }

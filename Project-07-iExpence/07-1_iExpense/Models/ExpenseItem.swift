@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct ExpenseItem: Identifiable, Codable {
+struct ExpenseItem: Identifiable, Codable, Hashable {
     let id: UUID
-    let name: String
-    let type: ExpenseType
-    let amount: Double
+    var name: String
+    var type: ExpenseType
+    var amount: Double
     
     init(id: UUID = UUID(), name: String, type: ExpenseType, amount: Double) {
         self.id = id
