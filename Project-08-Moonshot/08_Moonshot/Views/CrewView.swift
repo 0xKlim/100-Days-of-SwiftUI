@@ -32,9 +32,7 @@ struct CrewView: View {
         ScrollView(.horizontal) {
             HStack {
                 ForEach(crew, id: \.role) { crewMember in
-                    NavigationLink {
-                        AstronautView(astronaut: crewMember.astronaut)
-                    } label: {
+                    NavigationLink(value: crewMember.astronaut) {
                         HStack {
                             Image(crewMember.astronaut.id)
                                 .resizable()
@@ -76,6 +74,11 @@ struct CrewView: View {
     let astronauts: [String: Astronaut] = Bundle.main.decode("astronauts.json")
     let mission = missions[1]
     
-    return CrewView(mission: mission, astronauts: astronauts)
-        .preferredColorScheme(.dark)
+    return NavigationStack {
+        CrewView(mission: mission, astronauts: astronauts)
+            .navigationDestination(for: Astronaut.self) { astronaut in
+                AstronautView(astronaut: astronaut)
+            }
+            .preferredColorScheme(.dark)
+    }
 }

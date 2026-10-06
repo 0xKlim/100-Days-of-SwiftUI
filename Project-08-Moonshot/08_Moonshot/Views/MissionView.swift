@@ -53,6 +53,9 @@ struct MissionView: View {
     
     return NavigationStack {
         MissionView(mission: mission, astronauts: astronauts)
-        .preferredColorScheme(.dark)
+            .navigationDestination(for: Astronaut.self) { astronaut in
+                AstronautView(astronaut: astronaut)
+            }
+            .preferredColorScheme(.dark)
     }
 }
