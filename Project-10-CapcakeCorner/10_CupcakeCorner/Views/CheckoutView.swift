@@ -10,13 +10,16 @@ import SwiftUI
 struct CheckoutView: View {
     var order: Order
     
-    @State private var confirmationMessage = ""
-    @State private var showingConfirmation = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var showingAlert = false
+    
+    let imageURL = URL(string: "https://hws.dev/img/cupcakes@3x.jpg")
     
     var body: some View {
         ScrollView {
             VStack {
-                AsyncImage(url: URL(string: "https://hws.dev/img/cupcakes@3x.jpg"),scale: 3) { image in
+                AsyncImage(url: imageURL, scale: 3) { image in
                     image
                         .resizable()
                         .scaledToFit()
@@ -33,25 +36,26 @@ struct CheckoutView: View {
                         await placeOrder()
                     }
                 }
-                    .padding()
+                .padding()
             }
         }
         .navigationTitle("Check out")
         .navigationBarTitleDisplayMode(.inline)
         .scrollBounceBehavior(.basedOnSize)
-        .alert("Thank you!", isPresented: $showingConfirmation) {
+        .alert(alertTitle, isPresented: $showingAlert) {
             Button("OK") { }
         } message: {
-            Text(confirmationMessage)
+            Text(alertMessage)
         }
     }
     
     func placeOrder() async {
-        guard let encoded = try? JSONEncoder().encode(order) else {
-            print("Failed to encode order")
+        let orderRequest = OrderRequest(from: order)
+        
+        guard let encoded = try? JSONEncoder().encode(orderRequest) else {
+            showAlert(title: "Error!", message: "Order couldn't be prepared for sending.")
             return
         }
-        print(String(decoding: encoded, as: UTF8.self))
         
         let url = URL(string: "https://reqres.in/api/cupcakes")!
         var request = URLRequest(url: url)
@@ -61,13 +65,19 @@ struct CheckoutView: View {
         
         do {
             let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
+            let decodedOrder = try JSONDecoder().decode(OrderRequest.self, from: data)
             
-            let decodedOrder = try JSONDecoder().decode(Order.self, from: data)
-            confirmationMessage = "Your order for \(decodedOrder.quantity)x \(Order.types[decodedOrder.type].lowercased()) cupcakes is on its way!"
-            showingConfirmation = true
+            let message = "Your order for \(decodedOrder.quantity)x \(Order.types[decodedOrder.type].lowercased()) cupcakes is on its way!"
+            showAlert(title: "Thank you!", message: message)
         } catch {
-            print("Checkout failed: \(error.localizedDescription)")
+            showAlert(title: "Something went wrong", message: "Checkout failed: \(error.localizedDescription)")
         }
+    }
+    
+    func showAlert(title: String, message: String) {
+        alertTitle = title
+        alertMessage = message
+        showingAlert = true
     }
 }
 

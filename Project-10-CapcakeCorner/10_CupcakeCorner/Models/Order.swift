@@ -8,7 +8,7 @@
 import SwiftUI
 
 @Observable
-class Order: Codable {
+class Order {
     static let types = ["Vanilla", "Strawberry", "Chocolate", "Rainbow"]
     
     var type = 0
@@ -25,44 +25,41 @@ class Order: Codable {
     var extraFrosting = false
     var addSprinkles = false
     
-    var name = ""
-    var streetAddress = ""
-    var city = ""
-    var zip = ""
-    
-    var hasValidAddress: Bool {
-        if name.isEmpty || streetAddress.isEmpty || city.isEmpty || zip.isEmpty {
-            return false
+    var address: Address {
+        didSet {
+            saveAddress()
         }
-        
-        return true
     }
     
     var cost: Decimal {
         var cost = Decimal(quantity) * 2
-        
         cost += Decimal(type) / 2
-        
         if extraFrosting {
             cost += Decimal(quantity)
         }
-        
         if addSprinkles {
             cost += Decimal(quantity) / 2
         }
-        
         return cost
     }
     
-    enum CodingKeys: String, CodingKey {
-        case _type = "type"
-        case _quantity = "quantity"
-        case _specialRequestEnabled = "specialRequestEnabled"
-        case _extraFrosting = "extraFrosting"
-        case _addSprinkles = "addSprinkles"
-        case _name = "name"
-        case _city = "city"
-        case _streetAddress = "streetAddress"
-        case _zip = "zip"
+    init() {
+        if let encodedAddress = UserDefaults.standard.data(forKey: addressKey) {
+            if let decodedAddress = try? JSONDecoder().decode(Address.self, from: encodedAddress) {
+                self.address = decodedAddress
+                return
+            }
+        }
+        self.address = Address()
+    }
+    
+    private let addressKey = "UserAddress"
+    
+    func saveAddress() {
+        if let encodedAddress = try? JSONEncoder().encode(address) {
+            UserDefaults.standard.set(encodedAddress, forKey: addressKey)
+        }
     }
 }
+
+
