@@ -20,6 +20,12 @@ struct AddBookView: View {
     
     let genres = ["Fantasy", "Horror", "Kids", "Mystery", "Poetry", "Romance", "Thriller"]
     
+    var hasValidValues: Bool {
+        ![title, author, genre].contains(where: {
+            $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        })
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
@@ -45,6 +51,7 @@ struct AddBookView: View {
                         modelContext.insert(newBook)
                         dismiss()
                     }
+                    .disabled(!hasValidValues)
                 }
             }
             .navigationTitle("Add Book")
