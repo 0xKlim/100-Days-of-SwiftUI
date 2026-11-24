@@ -19,6 +19,9 @@ struct ItemRowView: View {
             Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
                 .foregroundStyle(item.amount > 100 ? .red : item.amount > 10 ? .orange : .green)
         }
+        .accessibilityElement()
+        .accessibilityLabel("\(item.name), \(item.amount.formatted(.currency(code: Locale.current.currency?.identifier ?? "USD")))")
+        .accessibilityHint("\(item.type.rawValue)")
     }
 }
 
