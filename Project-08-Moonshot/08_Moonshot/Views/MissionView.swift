@@ -21,16 +21,19 @@ struct MissionView: View {
                         width * 0.6
                     }
                     .padding(.top)
+                    .accessibilityLabel("\(mission.displayName) mission patch")
                 
                 Text(mission.formattedLaunchDate)
                     .foregroundStyle(.white.opacity(0.5))
                     .padding(.top)
+                    .accessibilityLabel(mission.accessibilityLaunchDate)
                 
                 VStack(alignment: .leading) {
                     CustomDivider()
                     Text("Mission Highlights")
                         .font(.title.bold())
                         .padding(.bottom, 5)
+                        .accessibilityAddTraits(.isHeader)
                     
                     Text(mission.description)
                 }

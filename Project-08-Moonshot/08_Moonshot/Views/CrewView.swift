@@ -26,6 +26,7 @@ struct CrewView: View {
             Text("Crew")
                 .font(.title.bold())
                 .padding(.bottom, 5)
+                .accessibilityAddTraits(.isHeader)
         }
         .padding(.horizontal)
         
@@ -55,6 +56,8 @@ struct CrewView: View {
                         .background(.lightBackground)
                         .clipShape(.rect(cornerRadius: 10))
                         .padding(.trailing)
+                        .accessibilityElement()
+                        .accessibilityLabel("Astronaut: \(crewMember.astronaut.name), role: \(crewMember.role)")
                     }
                 }
             }

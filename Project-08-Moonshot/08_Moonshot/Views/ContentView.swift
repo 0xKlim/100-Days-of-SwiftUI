@@ -29,6 +29,7 @@ struct ContentView: View {
                 Button("Layout", systemImage: showingGridLayout ? "list.bullet" : "rectangle.grid.2x2") {
                     showingGridLayout.toggle()
                 }
+                .accessibilityLabel("Switch to \(showingGridLayout ? "list" : "grid") layout")
             }
             .navigationDestination(for: Mission.self) { mission in
                 MissionView(mission: mission, astronauts: astronauts)

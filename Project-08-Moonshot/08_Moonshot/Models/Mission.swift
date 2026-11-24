@@ -31,4 +31,12 @@ struct Mission: Codable, Identifiable, Hashable {
     var formattedLaunchDate: String {
         launchDate?.formatted(date: .abbreviated, time: .omitted) ?? "N/A"
     }
+    
+    var accessibilityLaunchDate: String {
+        if let launchDate {
+            "launch date: \(launchDate.formatted(date: .abbreviated, time: .omitted))"
+        } else {
+            "Not launched"
+        }
+    }
 }

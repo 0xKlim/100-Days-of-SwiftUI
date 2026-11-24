@@ -55,6 +55,8 @@ private struct MissionGridItem: View {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(.lightBackground)
         )
+        .accessibilityElement()
+        .accessibilityLabel("\(mission.displayName) mission, \(mission.accessibilityLaunchDate)")
     }
 }
 
